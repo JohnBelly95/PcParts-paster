@@ -23,11 +23,16 @@ public class Graphics  implements ActionListener, MouseListener {
 	private static mainApp ma = new mainApp();
 	public static TextReader tr = new TextReader();
 	public static TextWriter tw = new TextWriter();
-	private int width = 800;
-	private int height = 1000;
-	private int x = 200;
-	private int y = 200;
+	private String a;
+	private Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+	private int width = screen.width  / 3;
+	private int height = screen.width  / 3;
+	private int x = (screen.width / 3);
+	private int y = (screen.height / 3);
+	private int scrw1 = screen.width/3;
+	private int scrw2 = (screen.width) / 3;
 	private int j;
+	private int k;
 	private JPanel paneButton;
 	private Container cp;
 	private JFrame frame;
@@ -50,23 +55,38 @@ public class Graphics  implements ActionListener, MouseListener {
 	
 	//MouseClicked
 	public void mouseClicked(MouseEvent event){
+		int i = list.getSelectedIndex();
         if (event.getClickCount() == 2) {
 			JList list = (JList)event.getSource();
-			int i = list.getSelectedIndex();
+			String item = list.getSelectedValue().toString();
+			System.out.println(item);
 			if (i != -1) {
 				if (j == 1){
 					if(i == 0) {
 						thirdLevel("Stock","HARDWARE");
-						System.out.println("2");
+						k = 1;
 					}else if(i == 1){
 						thirdLevel("Stock","PERIPHERALS");
+						k = 2;
 					}
 				}else if(j == 2){
-					newWindow("Order",i);
+					newWindow("Order",item);
 				}else if(j == 3){
-					newWindow("Sell",i);
+					newWindow("Sell",item);
 				}else if(j == 4){
-					newWindow("Stock",i);
+					newWindow("Stock",item);
+				}
+			}
+		}else{
+			if(j == 0){
+				if(i == 0){
+					buybut.setEnabled(false);
+					makeorderbut.setEnabled(true);
+					changeorderbut.setEnabled(false);
+				}else{
+					buybut.setEnabled(true);
+					makeorderbut.setEnabled(false);
+					changeorderbut.setEnabled(true);
 				}
 			}
 		}
@@ -122,7 +142,10 @@ public class Graphics  implements ActionListener, MouseListener {
 				Sell sl = new Sell(Stored.get(i).getThing(), name, ph, fp);
 				Sold.add(sl);
 				tw.SoldTextWriter(Sold);
-				Stored.remove(i);
+				Stored.get(i).setAvailableStock(Stored.get(i).getAvailableStock() - 1);
+				if(Stored.get(i).getAvailableStock() < 1){
+					Stored.remove(i);
+				}
 				tw.StockTextWriter(Stored);
 			}
    		}
@@ -151,6 +174,7 @@ public class Graphics  implements ActionListener, MouseListener {
 		cp.add(paneButton);
 		frame.pack();
 		frame.setVisible(true);
+		
 	}
 	
 	//GUI level 2
@@ -167,7 +191,7 @@ public class Graphics  implements ActionListener, MouseListener {
 			list = new JList(ListModel);
 			list.setSelectedIndex(0);
 			JScrollPane listScroller = new JScrollPane(list);
-			listScroller.setPreferredSize(new Dimension(height, 200));
+			listScroller.setPreferredSize(new Dimension(height, scrw1));
 			Text = new JTextArea("Please choose a category");
 			Text.setFont(new Font("Serif", Font.ITALIC, 20));
 			Text.setForeground(Color.BLACK);
@@ -183,6 +207,7 @@ public class Graphics  implements ActionListener, MouseListener {
 			frame.setVisible(true);
 			
 		}else if(type.equals("order")){
+			j = 2;
 			ListModel = new DefaultListModel();
 			DefaultListModel  ListModel2 = new DefaultListModel();
 			for (Order prod : Ordered){
@@ -194,9 +219,9 @@ public class Graphics  implements ActionListener, MouseListener {
 			list2 = new JList(ListModel2);
 			list2.setSelectedIndex(0);
 			JScrollPane listScroller1 = new JScrollPane(list);
-			listScroller1.setPreferredSize(new Dimension(height, 250));
+			listScroller1.setPreferredSize(new Dimension(height, scrw1));
 			JScrollPane listScroller2 = new JScrollPane(list2);
-			listScroller2.setPreferredSize(new Dimension(height, 250));
+			listScroller2.setPreferredSize(new Dimension(height, scrw2));
 			cp.removeAll();
 			list.addMouseListener(this);
 			cp.add(listScroller1, BorderLayout.LINE_START);
@@ -205,6 +230,7 @@ public class Graphics  implements ActionListener, MouseListener {
 			frame.pack();
 			frame.setVisible(true);
 		}else if(type.equals("sell")){
+			j = 3;
 			ListModel = new DefaultListModel();
 			DefaultListModel  ListModel2 = new DefaultListModel();
 			for (Sell prod : Sold){
@@ -216,9 +242,9 @@ public class Graphics  implements ActionListener, MouseListener {
 			list2 = new JList(ListModel2);
 			list2.setSelectedIndex(0);
 			JScrollPane listScroller = new JScrollPane(list);
-			listScroller.setPreferredSize(new Dimension(height, 250));
+			listScroller.setPreferredSize(new Dimension(height, scrw1));
 			JScrollPane listScroller2 = new JScrollPane(list2);
-			listScroller2.setPreferredSize(new Dimension(height, 250));
+			listScroller2.setPreferredSize(new Dimension(height, scrw2));
 			cp.removeAll();
 			list.addMouseListener(this);
 			cp.add(listScroller, BorderLayout.LINE_START);
@@ -230,53 +256,54 @@ public class Graphics  implements ActionListener, MouseListener {
 	
 	// GUI level 3
 	public void thirdLevel(String type, String a){
-		System.out.println("3");
+		j = 4;
+		this.a = a;
 		if(type.equals("Stock")){
-			System.out.println("4");
 			ListModel = new DefaultListModel();
 			ListModel2 = new DefaultListModel();
 			for (Stock prod : Stored)
 			{
-				System.out.println("5");
 				if(a.equals("HARDWARE"))
 				{
-					System.out.println("6");
-					if(prod.getTitle().equals("MOTHERBOARD") || prod.getTitle().equals("RAM") || prod.getTitle().equals("CPU") || prod.getTitle().equals("GPU") || prod.getTitle().equals("HARDDRIVE"))
+					if(prod.getThing().getTitle().equals("MOTHERBOARD") || prod.getThing().getTitle().equals("RAM") || prod.getThing().getTitle().equals("CPU") || prod.getThing().getTitle().equals("GPU") || prod.getThing().getTitle().equals("HARDDRIVE"))
 					{
-						ListModel.addElement(prod.getTitle());
-						ListModel2.addElement(prod.toString());
+						JTextArea Text2 = new JTextArea(prod.toString());
+						ListModel.addElement(prod.getThing().getTitle());
+						ListModel2.addElement(Text2);
 					}
 				}
 				else if(a.equals("PERIPHERALS"))
 				{
-					if(prod.getTitle().equals("MONITOR") || prod.getTitle().equals("MOUSE") || prod.getTitle().equals("KEYBOARD") || prod.getTitle().equals("PRINTER"))
-					{
-						ListModel.addElement(prod.getTitle());
-						ListModel2.addElement(prod.toString());
+					if(prod.getThing().getTitle().equals("MONITOR") || prod.getThing().getTitle().equals("MOUSE") || prod.getThing().getTitle().equals("KEYBOARD") || prod.getThing().getTitle().equals("PRINTER"))
+					{	
+						JTextArea Text2 = new JTextArea(prod.toString());
+						ListModel.addElement(prod.getThing().getTitle());
+						ListModel2.addElement(Text2);
 					}
 				}
 			}
+			
 			list = new JList(ListModel);
 			list.setSelectedIndex(0);
 			list2 = new JList(ListModel2);
 			list2.setSelectedIndex(0);
 
 			JScrollPane listScroller = new JScrollPane(list);
-			listScroller.setPreferredSize(new Dimension(height, 100));
+			listScroller.setPreferredSize(new Dimension(height, scrw1));
 			JScrollPane listScroller2 = new JScrollPane(list2);
-			listScroller2.setPreferredSize(new Dimension(height, 100));
+			listScroller2.setPreferredSize(new Dimension(height, scrw2));
 			cp.removeAll();
 			cp.add(listScroller, BorderLayout.LINE_START);
 			cp.add(listScroller2, BorderLayout.LINE_END);
 			list.addMouseListener(this);
-			list2.addMouseListener(this);
 			frame.pack();
 			frame.setVisible(true);
 		}
 	}
 	
 	//New Window
-	public void newWindow(String type, int b){
+	public void newWindow(String type, String b){
+		j = 0;
 		if(type.equals("Stock")){
 			System.out.println("1");
 			frame = new JFrame("Stock");
@@ -285,25 +312,32 @@ public class Graphics  implements ActionListener, MouseListener {
 			buybut = new JButton("TO BUY");
 			makeorderbut = new JButton("TO ORDER");
 			ListModel = new DefaultListModel();
-			int c =0;
+			ListModel2 = new DefaultListModel();
+			ListModel.addElement("NONE");
+			
 			for (Stock prod : Stored){
-				if((prod.getTitle() != Stored.get(b).getTitle()) && c != 1){
-					buybut.setEnabled(false);
-					makeorderbut.setEnabled(true);
-				}else{
-					c = 1;
-					ListModel.addElement(prod.toString());
-					buybut.setEnabled(true);
-					makeorderbut.setEnabled(false);
+				System.out.println("2");
+				if((prod.getThing().getTitle() == b)){
+					JTextArea Text2 = new JTextArea(prod.toString());
+					ListModel.addElement(prod.getThing().getmodelName());
+					ListModel2.addElement(Text2);
+					System.out.println("3");
 				}
 			}
-			list2 = new JList(ListModel);
+			list = new JList(ListModel);
+			list.setSelectedIndex(0);
+			list2 = new JList(ListModel2);
 			list2.setSelectedIndex(0);
+			
 			cp = new Container();
 			cp = frame.getContentPane();
 			cp.setLayout(new BorderLayout());
-			JScrollPane listScroller = new JScrollPane(list2);
-			listScroller.setPreferredSize(new Dimension(height, 200));
+			JScrollPane listScroller = new JScrollPane(list);
+			listScroller.setPreferredSize(new Dimension(height, scrw2));
+			JScrollPane listScroller2 = new JScrollPane(list2);
+			listScroller2.setPreferredSize(new Dimension(height, scrw2));
+			buybut.setEnabled(false);
+			makeorderbut.setEnabled(false);
 			paneButton = new JPanel();
 			paneButton.setLayout(new FlowLayout());
 			paneButton.add(buybut);
@@ -315,7 +349,10 @@ public class Graphics  implements ActionListener, MouseListener {
 			paneButton.add(Text);
 			list.addMouseListener(this);
 			cp.add(listScroller, BorderLayout.LINE_START);
+			cp.add(listScroller2, BorderLayout.CENTER);
 			cp.add(paneButton, BorderLayout.LINE_END);
+			buybut.addActionListener(this);
+			makeorderbut.addActionListener(this);
 			frame.pack();
 			frame.setVisible(true);
 		}else if(type.equals("Order")){
@@ -324,20 +361,24 @@ public class Graphics  implements ActionListener, MouseListener {
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			changeorderbut = new JButton("TO BUY");
 			ListModel = new DefaultListModel();
-			int c =0;
+			ListModel2 = new DefaultListModel();
+			ListModel.addElement("NONE");
 			for (Order prod : Ordered){
-				if((prod.getThing().getTitle() != Ordered.get(b).getTitle()) && c != 1){
-					changeorderbut.setEnabled(false);
-				}else{
-					c = 1;
-					ListModel.addElement(prod.toString());
-					changeorderbut.setEnabled(true);
+				if(prod.getThing().getTitle() == b){
+					JTextArea Text2 = new JTextArea(prod.toString());
+					ListModel.addElement(prod.getThing().getmodelName());
+					ListModel2.addElement(Text2);
+					System.out.println("3");
 				}
 			}
 			list = new JList(ListModel);
 			list.setSelectedIndex(0);
+			list2 = new JList(ListModel2);
+			list2.setSelectedIndex(0);
 			JScrollPane listScroller = new JScrollPane(list);
-			listScroller.setPreferredSize(new Dimension(height, 200));
+			listScroller.setPreferredSize(new Dimension(height, scrw1));
+			JScrollPane listScroller2 = new JScrollPane(list2);
+			listScroller2.setPreferredSize(new Dimension(height, scrw1));
 			paneButton = new JPanel();
 			paneButton.setLayout(new FlowLayout());
 			paneButton.add(changeorderbut);
@@ -350,8 +391,10 @@ public class Graphics  implements ActionListener, MouseListener {
 			cp = frame.getContentPane();
 			cp.setLayout(new BorderLayout());
 			list.addMouseListener(this);
-			cp.add(paneButton, BorderLayout.LINE_START);
-			cp.add(listScroller, BorderLayout.LINE_END);
+			changeorderbut.addActionListener(this);
+			cp.add(listScroller, BorderLayout.LINE_START);
+			cp.add(listScroller2, BorderLayout.CENTER);
+			cp.add(paneButton, BorderLayout.LINE_END);
 			frame.pack();
 			frame.setVisible(true);
 		}else if(type.equals("Sell")){
@@ -360,21 +403,31 @@ public class Graphics  implements ActionListener, MouseListener {
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			ListModel = new DefaultListModel();
 			for (Sell prod : Sold){
-				if(prod.getThing().getTitle() == Sold.get(b).getTitle()){
-					ListModel.addElement(prod.toString());
+				if(prod.getThing().getTitle() == b){
+					JTextArea Text2 = new JTextArea(prod.toString());
+					ListModel.addElement(Text2);
 				}
 			}
 			list = new JList(ListModel);
 			list.setSelectedIndex(0);
 			JScrollPane listScroller = new JScrollPane(list);
-			listScroller.setPreferredSize(new Dimension(height, 500));
+			listScroller.setPreferredSize(new Dimension(height, scrw1));
 			cp = new Container();
 			cp = frame.getContentPane();
 			cp.setLayout(new BorderLayout());
-			list.addMouseListener(this);
 			cp.add(listScroller);
 			frame.pack();
 			frame.setVisible(true);
 		}
+	}
+	public static int PriceCalculation( int pcPartType, int price){
+		if (pcPartType.equals("1")){
+			fp = price - price* 10/100;                  
+			//System.out.println("The final price is : "+ fp +" Euros.");
+		}else if(pcPartType.equals("2")){
+			fp = price - price * 20/100;                  
+			//System.out.println("The final price is : "+ fp +" Euros.");
+		}
+		return fp;
 	}
 }

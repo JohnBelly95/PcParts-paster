@@ -27,7 +27,7 @@ public class Stock extends PcParts{
 	}
 	public String toString(){
 		System.out.println();
-		return (thing + "\n\t\tPIECES: " + getAvailableStock() + "\n");
+		return (thing + "\n\t\tPIECES: " + getAvailableStock());
 	}
 	
 }

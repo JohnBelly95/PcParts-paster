@@ -430,4 +430,8 @@ public class Graphics  implements ActionListener, MouseListener {
 		}
 		return fp;
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/master
